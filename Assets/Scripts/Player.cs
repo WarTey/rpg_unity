@@ -4,8 +4,29 @@ using UnityEngine;
 
 public class Player : Character
 {
+    [SerializeField]
+    private Stat health;
+
+    private float initHealth = 100.0f;
+
+    [SerializeField]
+    private Stat mana;
+
+    private float initMana = 50.0f;
+
+    [SerializeField]
+    private Stat experience;
+
+    private float initExperience = 100.0f;
+
     protected override void Start()
     {
+        health.Initialize(initHealth, initHealth);
+
+        mana.Initialize(initMana, initMana);
+
+        experience.Initialize(initExperience, initExperience);
+
         base.Start();
     }
 
@@ -21,8 +42,6 @@ public class Player : Character
     {
         direction = Vector2.zero;
 
-        transform.eulerAngles = new Vector3(0, 360, 0);
-
         if (Input.GetKey(KeyCode.Z))
         {
             direction += Vector2.up;
@@ -33,14 +52,21 @@ public class Player : Character
         }
         if (Input.GetKey(KeyCode.Q))
         {
-            // Animation gauche manquante
-            direction += Vector2.right;
-
-            transform.eulerAngles = new Vector3(0, 180, 0);
+            direction += Vector2.left;
         }
         if (Input.GetKey(KeyCode.D))
         {
             direction += Vector2.right;
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Attack();
+        }
+    }
+
+    private void Attack()
+    {
+        myAnimator.SetTrigger("ope");
     }
 }

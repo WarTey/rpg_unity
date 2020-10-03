@@ -5,43 +5,68 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour
 {
     [SerializeField]
-    private float speed;
+    private float speed = 0.0f;
 
-    private Animator animator;
+    protected Animator myAnimator;
 
     protected Vector2 direction;
+
+    private Rigidbody2D myRigidbody;
+
+    public bool IsMoving
+    {
+        get
+        {
+            return direction.x != 0 || direction.y != 0;
+        }
+    }
 
     // Start is called before the first frame update
     protected virtual void Start()
     {
-        animator = GetComponent<Animator>();
+        myRigidbody = GetComponent<Rigidbody2D>();
+
+        myAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     protected virtual void Update()
+    {
+        HandleLayers();
+    }
+
+    private void FixedUpdate()
     {
         Move();
     }
 
     public void Move()
     {
-        transform.Translate(direction * speed * Time.deltaTime);
+        myRigidbody.velocity = direction.normalized * speed;
+    }
 
-        if (direction.x != 0 || direction.y != 0)
+    private void HandleLayers()
+    {
+        if (IsMoving)
         {
-            AnimateMovement();
+            ActivateLayer("Walk Layer");
+
+            myAnimator.SetFloat("x", direction.x);
+            myAnimator.SetFloat("y", direction.y);
         }
         else
         {
-            animator.SetLayerWeight(1, 0);
+            ActivateLayer("Idle Layer");
         }
     }
 
-    public void AnimateMovement()
+    public void ActivateLayer(string layerName)
     {
-        animator.SetLayerWeight(1, 1);
+        for (int i = 0; i < myAnimator.layerCount; i++)
+        {
+            myAnimator.SetLayerWeight(i, 0);
+        }
 
-        animator.SetFloat("x", direction.x);
-        animator.SetFloat("y", direction.y);
+        myAnimator.SetLayerWeight(myAnimator.GetLayerIndex(layerName), 1);
     }
 }
